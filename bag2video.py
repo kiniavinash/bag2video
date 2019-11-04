@@ -96,7 +96,7 @@ if __name__ == '__main__':
         rate, minrate, maxrate, size, times = get_info(bag, args.topic, start_time=args.start, stop_time=args.end)
         nframes = calc_n_frames(times, args.precision)
         # writer = cv2.VideoWriter(outfile, cv2.cv.CV_FOURCC(*'DIVX'), rate, size)
-        writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'DIVX'), np.ceil(maxrate*args.precision), size)
+        writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'X264'), np.ceil(maxrate*args.precision), size)
         print 'Writing video'
         write_frames(bag, writer, len(times), topic=args.topic, nframes=nframes, start_time=args.start, stop_time=args.end, encoding=args.encoding)
         writer.release()
