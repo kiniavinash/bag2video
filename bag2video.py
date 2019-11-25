@@ -51,8 +51,8 @@ def write_frames(bag, writer, total, topic=None, nframes=repeat(1), start_time=r
     for (topic, msg, time), reps in izip(iterator, nframes):
         print '\rWriting frame %s of %s at time %s' % (count, total, time),
         img = np.asarray(bridge.imgmsg_to_cv2(msg, 'bgr8'))
-        for rep in range(reps):
-            writer.write(img)
+        #for rep in range(reps):
+        writer.write(img)
         imshow('win', img)
         count += 1
 
@@ -94,9 +94,10 @@ if __name__ == '__main__':
         bag = rosbag.Bag(bagfile, 'r')
         print 'Calculating video properties'
         rate, minrate, maxrate, size, times = get_info(bag, args.topic, start_time=args.start, stop_time=args.end)
+        print("Rate: {0}, Minrate: {1}, Maxrate: {2}".format(rate, minrate, maxrate))
         nframes = calc_n_frames(times, args.precision)
         # writer = cv2.VideoWriter(outfile, cv2.cv.CV_FOURCC(*'DIVX'), rate, size)
-        writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'X264'), np.ceil(maxrate*args.precision), size)
+        writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'X264'), rate, size)
         print 'Writing video'
         write_frames(bag, writer, len(times), topic=args.topic, nframes=nframes, start_time=args.start, stop_time=args.end, encoding=args.encoding)
         writer.release()

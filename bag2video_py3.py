@@ -28,7 +28,7 @@ def get_info(bag, topic=None, start_time=rospy.Time(0), stop_time=rospy.Time(sys
 
     # now read the rest of the messages for the rates
     iterator = bag.read_messages(topics=topic, start_time=start_time, end_time=stop_time)#, raw=True)
-    for _, msg, _ in iterator:
+    for _, msg, _ in tqdm(iterator):
         time = msg.header.stamp
         times.append(time.to_sec())
         size = (msg.width, msg.height)
@@ -49,8 +49,8 @@ def write_frames(bag, writer, total, topic=None, nframes=repeat(1), start_time=r
     for (topic, msg, time), reps in zip(iterator, nframes):
         print ('Writing frame %s of %s at time %s' % (count, total, time), end='\r')
         img = np.asarray(bridge.imgmsg_to_cv2(msg, 'bgr8'))
-        for rep in range(reps):
-            writer.write(img)
+        # for rep in range(reps):
+        writer.write(img)
         imshow('win', img)
         count += 1
 
@@ -92,9 +92,12 @@ if __name__ == '__main__':
         bag = rosbag.Bag(bagfile, 'r')
         print ('Calculating video properties')
         rate, minrate, maxrate, size, times = get_info(bag, args.topic, start_time=args.start, stop_time=args.end)
+        print("Rate: {0}, Minrate: {1}, Maxrate: {2}".format(rate, minrate, maxrate))
+
         nframes = calc_n_frames(times, args.precision)
+        print("nframes: {}".format(nframes))
         # writer = cv2.VideoWriter(outfile, cv2.cv.CV_FOURCC(*'DIVX'), rate, size)
-        writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'MP4V'), np.ceil(maxrate*args.precision), size)
+        writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'MP4V'), rate, size)
         print ('Writing video')
         write_frames(bag, writer, len(times), topic=args.topic, nframes=nframes, start_time=args.start, stop_time=args.end, encoding=args.encoding)
         writer.release()

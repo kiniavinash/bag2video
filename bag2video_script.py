@@ -49,8 +49,8 @@ def write_frames(bag, writer, total, topic=None, nframes=repeat(1), start_time=r
     for (topic, msg, time), reps in zip(iterator, nframes):
         print ('Writing frame %s of %s at time %s' % (count, total, time), end='\r')
         img = np.asarray(bridge.imgmsg_to_cv2(msg, 'bgr8'))
-        for rep in range(reps):
-            writer.write(img)
+        #for rep in range(reps):
+        writer.write(img)
         # imshow('win', img)
         count += 1
 
@@ -70,7 +70,7 @@ def make_video(bag, outfile):
     rate, minrate, maxrate, size, times = get_info(bag, image_topic, start_time=rospy.Time(0), stop_time=rospy.Time(sys.maxsize))
     nframes = calc_n_frames(times, 10)
     # writer = cv2.VideoWriter(outfile, cv2.cv.CV_FOURCC(*'DIVX'), rate, size)
-    writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'MP4V'),  np.ceil(maxrate*10), size)
+    writer = cv2.VideoWriter(outfile, cv2.VideoWriter_fourcc(*'MP4V'),  rate, size)
     print ('Writing video')
     write_frames(bag, writer, len(times), topic=image_topic, nframes=nframes, start_time=rospy.Time(0), stop_time=rospy.Time(sys.maxsize), encoding='bgr8')
     writer.release()
